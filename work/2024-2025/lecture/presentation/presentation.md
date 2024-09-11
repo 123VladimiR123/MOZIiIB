@@ -35,7 +35,7 @@ monofontoptions: Scale=MatchLowercase,Scale=0.94,FakeStretch=0.9
 mathfontoptions:
 ---
 
-# Вводная часть    
+# Введение 
 
 Актуальность    
 
