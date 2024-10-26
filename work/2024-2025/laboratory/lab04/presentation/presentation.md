@@ -1,8 +1,8 @@
 ---
 ## Front matter
 lang: ru-RU
-title: Лабораторная работа №2
-subtitle: Шифры перестановки
+title: Лабораторная работа №4
+subtitle: Вычисление наибольшего общего делителя
 author:
   - Кубасов В.Ю.
 
@@ -37,104 +37,161 @@ mathfontoptions:
 
 ## Актуальность
 
-- Шифры перестановки используются до сих пор
-- Перестановочные алгоритмы лежат в основе современного шифрования
+- Алгоритм Евклида применяется в широком спектре задач, а также является одним из немногих оптимальных алгоритмов нахождения НОД.
+- Алгоритм Евклида используется в множестве других математических алгоритм (например, нахождение НОК).
 
 ## Цели и задачи
 
-- Ознакомиться с перестановочными и многоалфавитными шифрами
-- Реализовать предложенные шифры
+Реализовать предложенные вариации алгоритма Евклида:
+- Алгоритм Евклида
+- Бинарный алгоритм Евклида
+- Расширенный алгоритм Евклида
+- Расширенный бинарный алгоритм Евклида
 
 # Выполнение работы
 
 ## Маршрутные шифры
 
-![Маршрутный шифр](image/unnamed.png)
+![Евклид](image/istockphoto-961345376-612x612.jpg)
 
-## Маршрутные шифры
+## Алгоритм Евклида
+<div style="font-size: 12px">
 
 ```julia
-println("Введите пароль");
-pass = lowercase(readline());
-sortedPass = join(sort(collect(pass)));
+println("Введите а");
+a = parse(Int, chomp(readline()));
+println("Введите b");
+b = parse(Int, chomp(readline()));
 
-numberOfColumn = [];
-lengthOfPass = length(pass);
+ri_1 = a; ri = b; i = 1;
 
-for i in 1:2:length(sortedPass) * 2
-    push!(numberOfColumn, (Int64)
-      ((findfirst(sortedPass[i], pass) - 1) / 2 + 1));
+while (true) 
+    riplus1 = ri_1 % ri;
+    if (riplus1 == 0)
+        break;
+    end;
+    ri_1 = ri;
+    ri = riplus1;
+end;
+
+print("НОД чисел равен ");
+println(ri);
+```
+</div>
+## Бинарный алгоритм Евклида
+
+```julia
+g = 1;
+
+while ((a % 2 == 0) && (b % 2 == 0))
+    a /= 2;
+    b /= 2;
+    g *= 2;
+end;
+
+u = a;
+v = b;
+```
+
+## Бинарный алгоритм Евклида
+```julia
+while (u % 2 == 0)
+    u /= 2;
+end;
+
+while (v % 2 == 0)
+    v /= 2;
+end;
+
+while (u != 0)
+    if (u >= v)
+        u = u - v;
+    else
+        v = v - u;
+    end;
 end;
 ```
 
-## Маршрутные шифры
+## Расширенный алгоритм Евклида
 
 ```julia
-println("Строку к шифрованию (без пробелов и других символов кроме кириллицы)");
-rawString = lowercase(readline());
+ri_1 = a; ri = b; i = 1;
+xi_1 = 1; xi = 0;
+yi_1 = 0; yi = 1;
 
-encodedString = "";
+while (true) 
+    riplus1 = ri_1 % ri;
+    q = (ri_1 - riplus1) / ri;
+    xiplus1 = xi_1 - q * xi;
+    yiplus1 = yi_1 - q * yi;
+    if (riplus1 == 0)
+        break;
+    end;
+    ri_1 = ri;
+    ri = riplus1;
+    xi_1 = xi;
+    xi = xiplus1;
+    yi_1 = yi;
+    yi = yiplus1;
+    
+end;
+```
+## Расширенный бинарный алгоритм Евклида
 
-numberOfRaws = ceil(length(rawString) / lengthOfPass);
+```julia
+g = 1;
 
-while length(rawString) < (numberOfRaws * lengthOfPass)
-    global rawString *= 'а'; # заглушка для количества символов
+while ((a % 2 == 0) && (b % 2 == 0))
+    a /= 2;
+    b /= 2;
+    g *= 2;
+end;
+
+
+u = a; v = b;
+As = 1; Bs = 0; C = 0; D = 1;
+
+while (u % 2 == 0)
+    u /= 2;
+    if ((As % 2 == 0) && (Bs % 2 == 0))
+        As /= 2;
+        Bs /= 2;
+    else
+        As += b; As /= 2;
+        Bs -= a; Bs /= 2;
+    end;
 end;
 ```
 
-## Маршрутные шифры
-
+## Расширенный бинарный алгоритм Евклида
 ```julia
-for i in numberOfColumn
-    current = i;
-    while (current <= length(rawString))
-        global encodedString *= rawString[2 * current - 1];
-        current += lengthOfPass;
+while (v % 2 == 0)
+    v /= 2;
+    if ((C % 2 == 0) && (D % 2 == 0))
+        C /= 2;
+        D /= 2;
+    else
+        C += b; C /= 2;
+        D -= a; D /= 2;
     end;
 end;
 
-println(encodedString);
+if (u >= v) 
+    u =- v;
+    As -= C;
+    Bs -= D;
+else
+    v -= u;
+    C -= As;
+    D -= Bs;
+end;
 ```
-
-## Шифр Виженера
-
- ![Рис. 2 Шифр Виженера](image/8.jpg){height=70%}
-
-## Шифр Виженера
-
- ```julia
-const abcStart = codepoint('а');
-const abcEnd = codepoint('я');
-
-println("Введите пароль");
-pass = lowercase(readline());
-
-# Работает при условии только кириллицы, без других символов
-println("Введите строку для шифрования");
-rawString = lowercase(readline());
-
-encodedString = "";
- ```
-
-## Шифр Виженера
-
- ```julia
-
-while (length(pass) < length(rawString))
-    global pass *= pass;
-end;
-
-for i in 1:2:2 * length(rawString)
-    global encodedString *= (Char)(abcStart - 1 + 
-        mod(codepoint(rawString[i]) + 
-            codepoint(pass[i]) - 2 * abcStart + 1, abcEnd - abcStart)); 
-end;
-
-println(encodedString);
- ```
 
 # Выводы
 
-1. Познакомились с многоалфавитными шифрами и шифрами перестановок
-2. Реализовали маршрутный шифр и шифр Виженера
+Реализовали предложенные вариации алгоритма Евклида:
+- Алгоритм Евклида
+- Бинарный алгоритм Евклида
+- Расширенный алгоритм Евклида
+- Расширенный бинарный алгоритм Евклида
 
