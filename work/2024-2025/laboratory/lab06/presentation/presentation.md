@@ -1,8 +1,8 @@
 ---
 ## Front matter
 lang: ru-RU
-title: Лабораторная работа №5
-subtitle: Вероятностные алгоритмы проверки чисел на простоту
+title: Лабораторная работа №6
+subtitle: Разложение чисел на множители
 author:
   - Кубасов В.Ю.
 
@@ -37,137 +37,55 @@ mathfontoptions:
 
 ## Актуальность
 
-- Быстрое определение простых чисел является ключевым фактором в информационной безопасности
+- Разложение чисел занимает достаточно много времени при условии используемых в шифровании порядков. Однако помимо перебора существуют алгоритмы, оптимизирующие данный процесс.
+
 
 ## Цели и задачи
 
 Реализовать алгоритмы:    
-- тест Ферма
-- символ якоби
-- тест Соловэя-Штрассена
-- тест Миллера-Рабина
+- Алгоритм реализующий p-метод Полларда
 
 # Выполнение работы
 
-## Тест Ферма
-<div style="font-size: 12px">
+## Нахождение НОД по Евклиду:
 
 ```julia
-println("Введите n");
-n = parse(Int, chomp(readline()));
-
-a = rand(2:n-2);
-
-r = a ^ (n - 1) % n;
-if (r == 1)
-    println("Число, вероятно, простое");
-else
-    println("Число составное");
-end;
-```
-</div>
-
-## Символ Якоби
-
-```julia
-function jackobi(n, a, g = 1)
-    if (a == 1)
-        return 0;
+function euklid(a, b)
+    if (a == 0)
+        return 1;
     end;
-    if (a == 1)
-        return g;
-    end;
-    k = 0;
-    a1 = a;
-    while (a1 % 2 == 0)
-        a1 /= 2;
-        k += 1;
-    end;
-```
-
-## Символ Якоби
-
-```julia
-    s = 0;
-    if ((k % 2 == 0) || (abs(n % 8) == 1))
-        s = 1;
-    elseif (abs(n % 8) == 3)
-        s = -1
-    end;
-
-    if (a1 == 1)
-        return g * s;
-    end;
-
-    if ((n % 4 == 3) && (a1 % 4 == 3))
-        s = -s;
-    end;
-
-    return jackobi(a1, n % a1, g * s);        
-end
-
-println(jackobi(91, 15));
-```
-
-## Бинарный алгоритм Евклида
-
-```julia
-println("Введите n");
-n = parse(Int, chomp(readline()));
-a = rand(2:n-2);
-r = a ^ (n - 1) % 2;
-if ((r != 1) && (r != n - 1))
-    println("Число n составное");
-else
-    s = jackobi(n, a);
-    if (r % n == s)
-        println("Число n составное");
-    else 
-        println("Число, вероятно, простое");
-    end;
-end;
-```
-
-## Тест Миллера-Рабина
-
-```julia
-function miller()
-    println("Введите n");
-    n = parse(Int, chomp(readline()));
-    n_1 = n - 1;
-    s = 0;
-    while (n_1 % 2 == 0)
-        n_1 /= 2;
-        s += 1;
-    end;
-    r = n_1;
-    a = rand(2:n-2);
-    y = a^r % n;
-    j = 1;
-end;
-```
-## Тест Миллера-Рабина
-
-```julia
-while (y != 1 && y != n - 1)
-        if ((j <= s - 1) && (y != n - 1))
-            y = y ^ 2 % n;
-            if (y == 1)
-                println("Число n составное");
-                return 0;
-                break;
-            end;
-            j += 1;
-        end;
-        if (y != n - 1)
-            println("Число n составное");
-            return 0;
+    ri_1 = a; ri = b; i = 1;
+    while (true) 
+        riplus1 = ri_1 % ri;
+        if (riplus1 == 0)
             break;
         end;
+        ri_1 = ri;
+        ri = riplus1;
     end;
-    println("Число n, вероятно, простое")
+    return ri;
 end;
-miller();
+```
+
+## Нахождение нетривиальног множителя
+
+```julia
+function pollard(n, c, func)
+    a = c;
+    b = c;
+    while(true)
+        a = func(a) % n;
+        b = func(func(b) % n) % n;
+        d = euklid(a - b, n);
+        if (1 < d && d < n)
+            return d;
+        end;
+        if (d == n)
+            println("Делитель не найден");
+            return -1;
+        end;
+    end;
+end;
 ```
 
 # Выводы:    
